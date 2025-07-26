@@ -1,0 +1,11 @@
+LOC   Label     Opcode    Operand   
+1000	PGMI      START     1000      
+1000	          LDA       ALPHA     
+1003	          MUL       BETA      
+1006	          STA       GAMMA     
+1009	ALPHA     WORD      2         
+100C	BETA      WORD      4         
+100F	GAMMA     RESW      1         
+1012	          END       1000      
+
+Program size: 12

@@ -32,11 +32,11 @@ void decode(char line[SIZE],char label[20],char opcode[20],char operand[20]){
 }
 
 void main(){
-  FILE *fin = fopen("input.txt","r");
-  FILE *fout = fopen("symtab.txt","w");
-  FILE *fsymtab = fopen("symtab.txt","r");
-  FILE *foptab = fopen("optab.txt","r");
-  FILE *finter = fopen("intermediate.txt","w"); 
+  FILE *fin = fopen("files/input.txt","r");
+  FILE *fout = fopen("files/symtab.txt","w");
+  FILE *fsymtab = fopen("files/symtab.txt","r");
+  FILE *foptab = fopen("files/optab.txt","r");
+  FILE *finter = fopen("files/intermediate.txt","w"); 
 
   fprintf(fout,"%-8s%s\n","Label","LOC");
   fprintf(finter, "%-6s%-10s%-10s%-10s\n", "LOC", "Label", "Opcode", "Operand");

@@ -1,0 +1,4 @@
+Label   LOC
+ALPHA   1009
+BETA    100C
+GAMMA   100F
