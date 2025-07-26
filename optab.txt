@@ -1,0 +1,10 @@
+Opcode  Hexcode
+JSUB    00
+STL     21
+LDA     20
+COMP    0C
+JEQ     45
+J       76
+STA     34
+LDL     76
+RSUB    54
