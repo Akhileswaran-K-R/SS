@@ -82,9 +82,9 @@ void main(){
     if(found || strcmp(opcode,"WORD") == 0){
       locctr += 3;
     }else if(strcmp(opcode,"RESW") == 0){
-      locctr += (int)strtol(operand,NULL,16) * 3;
+      locctr += atoi(operand) * 3;
     }else if(strcmp(opcode,"RESB") == 0){
-      locctr += (int)strtol(operand,NULL,16);
+      locctr += atoi(operand);
     }else if(strcmp(opcode,"BYTE") == 0){
       if(operand[0] == 'C'){
         locctr += strlen(operand) - 3;

@@ -1,4 +1,10 @@
 Opcode  Hexacode
-LDA     00
-MUL     20
-STA     0C
+JSUB    00
+STL     18
+LDA     1C
+COMP    0C
+JEQ     23
+J       24
+STA     13
+LDL     76
+RSUB    54
