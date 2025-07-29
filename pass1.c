@@ -89,10 +89,9 @@ void main(){
       if(operand[0] == 'C'){
         locctr += strlen(operand) - 3;
       }else{
-        locctr += 1;
+        locctr += (strlen(operand) - 3)/2;
       }
     }else{
-      printf("%s",opcode);
       printf("\nInvalid operation\n");
       exit(0);
     }
