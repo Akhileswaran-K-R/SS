@@ -37,9 +37,10 @@ void main(){
   FILE *fsymtab = fopen("files/symtab.txt","r");
   FILE *foptab = fopen("files/optab.txt","r");
   FILE *finter = fopen("files/intermediate.txt","w"); 
+  FILE *flength = fopen("files/length.txt","w");
 
   fprintf(fout,"%-8s%s\n","Label","LOC");
-  fprintf(finter, "%-6s%-10s%-10s%-10s\n", "LOC", "Label", "Opcode", "Operand");
+  fprintf(finter, "%-6s%-10s%-10s%-22s\n", "LOC", "Label", "Opcode", "Operand");
 
   char line[SIZE],label[20],opcode[20],operand[20],symbol[20],symaddr[20],mnemonic[20],hexacode[20];
   int locctr = 0x0,start = 0x0,found;
@@ -49,7 +50,7 @@ void main(){
   decode(line,label,opcode,operand);
   if(strcmp(opcode,"START") == 0){
     locctr = start = (int)strtol(operand,NULL,16);
-    fprintf(finter, "%04X\t%-10s%-10s%-10s\n", locctr, label, opcode, operand);
+    fprintf(finter, "%04X\t%-10s%-10s%-22s\n", locctr, label, opcode, operand);
     fgets(line,sizeof(line),fin);
     decode(line,label,opcode,operand);
   }
@@ -78,7 +79,7 @@ void main(){
       }
     }
 
-    fprintf(finter, "%04X\t%-10s%-10s%-10s\n", locctr, label, opcode, operand);
+    fprintf(finter, "%04X\t%-10s%-10s%-22s\n", locctr, label, opcode, operand);
     if(found || strcmp(opcode,"WORD") == 0){
       locctr += 3;
     }else if(strcmp(opcode,"RESW") == 0){
@@ -92,6 +93,7 @@ void main(){
         locctr += (strlen(operand) - 3)/2;
       }
     }else{
+      printf("%s",opcode);
       printf("\nInvalid operation\n");
       exit(0);
     }
@@ -99,8 +101,8 @@ void main(){
     fgets(line,sizeof(line),fin);
     decode(line,label,opcode,operand);
   }
-  fprintf(finter, "%04X\t%-10s%-10s%-10s\n\n", locctr, label, opcode, operand);
-  fprintf(finter, "Program size: %X",(locctr - start));
+  fprintf(finter, "%04X\t%-10s%-10s%-22s", locctr, label, opcode, operand);
+  fprintf(flength, "Program size: %X",(locctr - start));
 
   fclose(fin);
   fclose(fout);
