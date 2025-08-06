@@ -45,7 +45,7 @@ void main(){
   fscanf(fin,"%s %s %s %s",start,name,opcode,operand);
   fprintf(flisting,"%-6s%-10s%-10s%-10s",start,name,opcode,operand);
   fscanf(flength,"%*s %*s %s",length);
-  fprintf(fout,"H^%-06s^%06s^%06s\n",name,start,length);
+  fprintf(fout,"H^%-6s^%06X^%06X\n",name,strtol(start,NULL,16),strtol(length,NULL,16));
 
   fgets(line1,sizeof(line1),fin);
   strcpy(line2,line1);
@@ -108,21 +108,21 @@ void main(){
       line2[strcspn(line2, "\n")] = '\0';
       fprintf(flisting,"%s%-12s\n",line2,objcode);
 
-      if(strlen(text) + strlen(objcode) - count <= 60){
-        if(count == 0){
-          strcpy(text,objcode);
-        }else{
-          strcat(text,objcode);
-        }
-        count++;
-        strcat(text,"^");
-      }else{
+      if(strlen(text) + strlen(objcode) - count > 60){
         text[strlen(text) - 1] = '\0';
-        fprintf(fout,"T^%06s^%02X^%s\n",startobj,(strlen(text) - count + 1) / 2,text);
+        fprintf(fout,"T^%06X^%02X^%s\n",strtol(startobj,NULL,16),(strlen(text) - count + 1) / 2,text);
         strcpy(text,"");
         count = 0;
         strcpy(startobj,loc);
       }
+
+      if(count == 0){
+        strcpy(text,objcode);
+      }else{
+        strcat(text,objcode);
+      }
+      count++;
+      strcat(text,"^");
     }else{
       fprintf(flisting,"%s",line2);
     }
@@ -132,9 +132,9 @@ void main(){
   }
   
   fprintf(flisting,"%s",line2);
-  if(strcmp(text,"") != 0){
+  if(count != 0){
     text[strlen(text) - 1] = '\0';
-    fprintf(fout,"T^%06s^%02X^%s\n",startobj,(strlen(text) - count + 1) / 2,text);
+    fprintf(fout,"T^%06X^%02X^%s\n",strtol(startobj,NULL,16),(strlen(text) - count + 1) / 2,text);
   }
-  fprintf(fout,"E^%06s",start);
+  fprintf(fout,"E^%06X",strtol(start,NULL,16));
 }
