@@ -25,7 +25,7 @@ ForwardRef* addRef(ForwardRef *item,char label[20],int loc){
 
 int searchRef(ForwardRef *list[],char label[20],int n){
   for(int i=0;i<n;i++){
-    if(strcmp(list[i]->label,label) == 0){
+    if(list[i] && strcmp(list[i]->label,label) == 0){
       return i;
     }
   }
@@ -120,6 +120,8 @@ void main(){
         for(int j=0;j<list[i]->n;j++){
           fprintf(fout,"T^%06X^02^%04X\n",list[i]->loc[j],locctr);
         }
+        free(list[i]);
+        list[i] = NULL;
       }
       fseek(fsymtab,0,SEEK_END);
       fprintf(fsymtab,"%-8s%04X\n",label,locctr);
@@ -207,6 +209,12 @@ void main(){
     fprintf(fout,"T^%06X^%02X^%s\n",startobj,(strlen(text) - count + 1) / 2,text);
   }
   fprintf(fout,"E^%06X",start);
+
+  for(int j=0;j<n;j++){
+    if(list[j] != NULL){
+      printf("\nInvalid Symbol\n");
+    }
+  }
 
   fclose(fin);
   fclose(fout);
