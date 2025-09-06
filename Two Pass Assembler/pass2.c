@@ -1,10 +1,11 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#define SIZE 200
+#define MAX 200
+#define MIN 20
 
-void decode(char line[SIZE],char loc[20],char opcode[20],char operand[20]){
-  char *token = strtok(line," \n\t"),strings[4][20];
+void decode(char line[],char loc[],char opcode[],char operand[]){
+  char *token = strtok(line," \n\t"),strings[4][MIN];
   int count = 0;
   while(token != NULL){
     strcpy(strings[count],token);
@@ -14,10 +15,7 @@ void decode(char line[SIZE],char loc[20],char opcode[20],char operand[20]){
 
   strcpy(loc,strings[0]);
   if(count == 2){
-    strcpy(opcode,strings[2]);
-    strcpy(operand,"");
-  }else if(count == 3 && strcmp(strings[2],"RSUB") == 0){
-    strcpy(opcode,strings[2]);
+    strcpy(opcode,strings[1]);
     strcpy(operand,"");
   }else if(count == 3){
     strcpy(opcode,strings[1]);
@@ -28,6 +26,32 @@ void decode(char line[SIZE],char loc[20],char opcode[20],char operand[20]){
   }
 }
 
+int searchOptab(FILE *foptab,char opcode[],char hexacode[]){
+  char mnemonic[MIN],line[MAX];
+  rewind(foptab);
+  fgets(line,sizeof(line),foptab);
+
+  while(fscanf(foptab,"%s %s",mnemonic,hexacode) != EOF){
+    if(strcmp(opcode,mnemonic) == 0){
+      return 1;
+    }
+  }
+  return 0;
+}
+
+int searchSymtab(FILE *fsymtab,char label[],char symaddr[]){
+  char symbol[MIN],line[100];
+  rewind(fsymtab);
+  fgets(line,sizeof(line),fsymtab);
+  
+  while(fscanf(fsymtab,"%s %s",symbol,symaddr) != EOF){
+    if(strcmp(label,symbol) == 0){
+      return 1;
+    }
+  }
+  return 0;
+}
+
 void main(){
   FILE *fin = fopen("files/intermediate.txt","r");
   FILE *fout = fopen("files/record.txt","w");
@@ -36,7 +60,7 @@ void main(){
   FILE *flisting = fopen("files/listing.txt","w");
   FILE *flength = fopen("files/length.txt","r");
 
-  char line1[SIZE],line2[SIZE],loc[20],opcode[20],operand[20],symbol[20],symaddr[20],mnemonic[20],hexacode[20],name[20],objcode[20],length[20],start[20],startobj[20],text[SIZE];
+  char line1[MAX],line2[MAX],loc[MIN],opcode[MIN],operand[MIN],symbol[MIN],symaddr[MIN],mnemonic[MIN],hexacode[MIN],name[MIN],objcode[MIN + 2],length[MIN],start[MIN],startobj[MIN],text[MAX];
 
   fgets(line1,sizeof(line1),fin);
   line1[strcspn(line1, "\n")] = '\0';
@@ -45,41 +69,22 @@ void main(){
   fscanf(fin,"%s %s %s %s",start,name,opcode,operand);
   fprintf(flisting,"%-6s%-10s%-10s%-10s",start,name,opcode,operand);
   fscanf(flength,"%*s %*s %s",length);
-  fprintf(fout,"H^%-6s^%06X^%06X\n",name,strtol(start,NULL,16),strtol(length,NULL,16));
+  fprintf(fout,"H^%-6s^%06X^%06X\n",name,(int)strtol(start,NULL,16),(int)strtol(length,NULL,16));
 
   fgets(line1,sizeof(line1),fin);
   strcpy(line2,line1);
   decode(line1,loc,opcode,operand);
 
-  int count = 0;
+  int count = 0,found;
   strcpy(startobj,start);
   while(strcmp(opcode,"END") != 0){
     strcpy(objcode,"-1");
-    rewind(foptab);
-    fgets(line1,sizeof(line1),foptab);
-    int found = 0;
-    while(fscanf(foptab,"%s %s",mnemonic,hexacode) != EOF){
-      if(strcmp(opcode,mnemonic) == 0){
-        found = 1;
-        break;
-      }
-    }
+    found = searchOptab(foptab,opcode,hexacode);
 
-    if(found == 1){
+    if(found){
       strcpy(objcode,hexacode);
       if(strcmp(operand,"") != 0){
-        rewind(fsymtab);
-        fgets(line1,sizeof(line1),fsymtab);
-        found = 0;
-        
-        while(fscanf(fsymtab,"%s %s",symbol,symaddr) != EOF){
-          if(strcmp(operand,symbol) == 0){
-            found = 1;
-            break;
-          }
-        }
-
-        if(found == 1){
+        if(searchSymtab(fsymtab,operand,symaddr)){
           strcat(objcode,symaddr);
         }else{
           printf("\nSymbol not found in symtab\n");
@@ -110,7 +115,7 @@ void main(){
 
       if(strlen(text) + strlen(objcode) - count > 60){
         text[strlen(text) - 1] = '\0';
-        fprintf(fout,"T^%06X^%02X^%s\n",strtol(startobj,NULL,16),(strlen(text) - count + 1) / 2,text);
+        fprintf(fout,"T^%06X^%02X^%s\n",(int)strtol(startobj,NULL,16),(int)((strlen(text) - count + 1) / 2),text);
         strcpy(text,"");
         count = 0;
         strcpy(startobj,loc);
@@ -134,7 +139,12 @@ void main(){
   fprintf(flisting,"%s",line2);
   if(count != 0){
     text[strlen(text) - 1] = '\0';
-    fprintf(fout,"T^%06X^%02X^%s\n",strtol(startobj,NULL,16),(strlen(text) - count + 1) / 2,text);
+    fprintf(fout,"T^%06X^%02X^%s\n",(int)strtol(startobj,NULL,16),(int)((strlen(text) - count + 1) / 2),text);
   }
-  fprintf(fout,"E^%06X",strtol(start,NULL,16));
+
+  if(strcmp(operand,"") != 0){
+    searchSymtab(fsymtab,operand,symaddr);
+    strcpy(start,symaddr);
+  }
+  fprintf(fout,"E^%06X",(int)strtol(start,NULL,16));
 }

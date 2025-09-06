@@ -1,10 +1,11 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#define SIZE 200
+#define MAX 200
+#define MIN 20
 
-void decode(char line[SIZE],char label[20],char opcode[20],char operand[20]){
-  char *token = strtok(line," \n"),strings[3][20];
+void decode(char line[],char label[],char opcode[],char operand[]){
+  char *token = strtok(line," \n"),strings[3][MIN];
   int count = 0;
   while(token != NULL){
     strcpy(strings[count],token);
@@ -16,10 +17,6 @@ void decode(char line[SIZE],char label[20],char opcode[20],char operand[20]){
     strcpy(label,"");
     strcpy(opcode,strings[0]);
     strcpy(operand,"");
-  }else if(count == 2 && strcmp(strings[1],"RSUB") == 0){
-    strcpy(label,strings[0]);
-    strcpy(opcode,strings[1]);
-    strcpy(operand,"");
   }else if(count == 2){
     strcpy(label,"");
     strcpy(opcode,strings[0]);
@@ -29,6 +26,32 @@ void decode(char line[SIZE],char label[20],char opcode[20],char operand[20]){
     strcpy(opcode,strings[1]);
     strcpy(operand,strings[2]);
   }
+}
+
+int searchOptab(FILE *foptab,char opcode[],char hexacode[]){
+  char mnemonic[MIN],line[MAX];
+  rewind(foptab);
+  fgets(line,sizeof(line),foptab);
+
+  while(fscanf(foptab,"%s %s",mnemonic,hexacode) != EOF){
+    if(strcmp(opcode,mnemonic) == 0){
+      return 1;
+    }
+  }
+  return 0;
+}
+
+int searchSymtab(FILE *fsymtab,char label[],char symaddr[]){
+  char symbol[MIN],line[100];
+  rewind(fsymtab);
+  fgets(line,sizeof(line),fsymtab);
+  
+  while(fscanf(fsymtab,"%s %s",symbol,symaddr) != EOF){
+    if(strcmp(label,symbol) == 0){
+      return 1;
+    }
+  }
+  return 0;
 }
 
 void main(){
@@ -42,7 +65,7 @@ void main(){
   fprintf(fout,"%-8s%s\n","Label","LOC");
   fprintf(finter, "%-6s%-10s%-10s%-10s\n", "LOC", "Label", "Opcode", "Operand");
 
-  char line[SIZE],label[20],opcode[20],operand[20],symbol[20],symaddr[20],mnemonic[20],hexacode[20];
+  char line[MAX],label[MIN],opcode[MIN],operand[MIN],symbol[MIN],symaddr[MIN],mnemonic[MIN],hexacode[MIN];
   int locctr = 0x0,start = 0x0,found;
 
   fgets(line,sizeof(line),fin);
@@ -57,27 +80,13 @@ void main(){
 
   while(strcmp(opcode,"END") != 0){
     if(strcmp(label,"") != 0){
-      rewind(fsymtab);
-      fgets(line,sizeof(line),fsymtab);
-      
-      while(fscanf(fsymtab,"%s %s",symbol,symaddr) != EOF){
-        if(strcmp(label,symbol) == 0){
-          printf("\nDuplicate symbol found\n");
-          exit(0);
-        }
+      if(searchSymtab(fsymtab,label,symaddr)){
+        printf("\nDuplicate symbol found\n");
+        exit(0);
       }
       fprintf(fout,"%-8s%04X\n",label,locctr);
     }
-
-    rewind(foptab);
-    fgets(line,sizeof(line),foptab);
-    found = 0;
-    while(fscanf(foptab,"%s %s",mnemonic,hexacode) != EOF){
-      if(strcmp(opcode,mnemonic) == 0){
-        found = 1;
-        break;
-      }
-    }
+    found = searchOptab(foptab,opcode,hexacode);
 
     fprintf(finter, "%04X\t%-10s%-10s%-10s\n", locctr, label, opcode, operand);
     if(found || strcmp(opcode,"WORD") == 0){
@@ -93,7 +102,6 @@ void main(){
         locctr += (strlen(operand) - 3)/2;
       }
     }else{
-      printf("%s",opcode);
       printf("\nInvalid operation\n");
       exit(0);
     }
