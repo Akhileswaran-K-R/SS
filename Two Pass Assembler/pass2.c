@@ -66,8 +66,8 @@ void main(){
   line1[strcspn(line1, "\n")] = '\0';
   fprintf(flisting, "%s%-12s\n", line1, "Object Code");
 
-  fscanf(fin,"%s %s %s %s",start,name,opcode,operand);
-  fprintf(flisting,"%-6s%-10s%-10s%-10s",start,name,opcode,operand);
+  fscanf(fin,"%s %s %s %s\n",start,name,opcode,operand);
+  fprintf(flisting,"%-6s%-10s%-10s%-10s\n",start,name,opcode,operand);
   fscanf(flength,"%*s %*s %s",length);
   fprintf(fout,"H^%-6s^%06X^%06X\n",name,(int)strtol(start,NULL,16),(int)strtol(length,NULL,16));
 
@@ -75,7 +75,7 @@ void main(){
   strcpy(line2,line1);
   decode(line1,loc,opcode,operand);
 
-  int count = 0,found;
+  int count = 0,found,newText = 0;
   strcpy(startobj,start);
   while(strcmp(opcode,"END") != 0){
     strcpy(objcode,"-1");
@@ -107,17 +107,20 @@ void main(){
       }
     }else if(strcmp(opcode,"WORD") == 0){
       sprintf(objcode,"%06X",atoi(operand));
+    }else{
+      newText = 1;
     }
 
     if(strcmp(objcode,"-1") != 0){
       line2[strcspn(line2, "\n")] = '\0';
       fprintf(flisting,"%s%-12s\n",line2,objcode);
 
-      if(strlen(text) + strlen(objcode) - count > 60){
+      if(strlen(text) + strlen(objcode) - count > 60 || newText){
         text[strlen(text) - 1] = '\0';
         fprintf(fout,"T^%06X^%02X^%s\n",(int)strtol(startobj,NULL,16),(int)((strlen(text) - count + 1) / 2),text);
         strcpy(text,"");
         count = 0;
+        newText = 0;
         strcpy(startobj,loc);
       }
 

@@ -92,7 +92,7 @@ void main(){
 
   fprintf(fsymtab,"%-8s%s\n","Label","LOC");
   char line[MAX],label[MIN],opcode[MIN],operand[MIN],symbol[MIN],symaddr[MIN],mnemonic[MIN],hexacode[MIN],length[MIN],objcode[MIN + 2],text[MAX],name[MIN];
-  int locctr = 0x0,start = 0x0,found,i,n = 0 ,count = 0,startobj;
+  int locctr = 0x0,start = 0x0,found,i,n = 0 ,count = 0,startobj,prevloc,newText = 0;
 
   fgets(line,sizeof(line),fin);
   fgets(line,sizeof(line),fin);
@@ -137,6 +137,7 @@ void main(){
 
     found = searchOptab(foptab,opcode,hexacode);
 
+    prevloc = locctr;
     if(found){
       strcpy(objcode,hexacode);
       if(strcmp(operand,"") != 0){
@@ -161,8 +162,10 @@ void main(){
       locctr += 3;
     }else if(strcmp(opcode,"RESW") == 0){
       locctr += atoi(operand) * 3;
+      newText = 1;
     }else if(strcmp(opcode,"RESB") == 0){
       locctr += atoi(operand);
+      newText = 1;
     }else if(strcmp(opcode,"BYTE") == 0){
       if(operand[0] == 'C'){
         int j = 0;
@@ -183,12 +186,13 @@ void main(){
     }
 
     if(strcmp(objcode,"-1") != 0){
-      if(strlen(text) + strlen(objcode) - count > 60){
+      if(strlen(text) + strlen(objcode) - count > 60 || newText){
         text[strlen(text) - 1] = '\0';
         fprintf(fout,"\nT^%06X^%02X^%s",startobj,(int)((strlen(text) - count + 1) / 2),text);
         strcpy(text,"");
         count = 0;
-        startobj = locctr;
+        newText = 0;
+        startobj = prevloc;
       }
 
       if(count == 0){
