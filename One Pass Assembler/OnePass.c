@@ -186,7 +186,7 @@ void main(){
     }
 
     if(strcmp(objcode,"-1") != 0){
-      if(strlen(text) + strlen(objcode) - count > 60 || newText){
+      if(strlen(text) + strlen(objcode) - count > 60 || newText && strcmp(text,"") != 0){
         text[strlen(text) - 1] = '\0';
         fprintf(fout,"\nT^%06X^%02X^%s",startobj,(int)((strlen(text) - count + 1) / 2),text);
         strcpy(text,"");
