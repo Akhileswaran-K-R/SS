@@ -15,12 +15,12 @@ void decode(char line[],char text[],int *textloc){
   }
 }
 
-void printX(int startloc,int *currloc,int textloc,int mode,FILE *fop){
-   while ((mode == 1 && (*currloc - startloc) % 16 != 0) || (mode == 2 && *currloc != textloc) || (mode == 3 && (*currloc - startloc) % 16 != 0 && *currloc != textloc)){
-    if((*currloc - startloc) % 16 == 0){
+void printX(int rem,int *currloc,int textloc,int mode,FILE *fop){
+  while ((mode == 1 && *currloc % 16 != rem) || (mode == 2 && *currloc != textloc) || (mode == 3 && *currloc % 16 != rem && *currloc != textloc)){
+    if(*currloc % 16 == rem){
       fprintf(fop,"\n%04X\t",*currloc);
     }
-    if((*currloc - startloc) % 4 == 0){
+    if((*currloc - rem) % 4 == 0){
       fprintf(fop,"  ");
     }
     fprintf(fop,"xx");
@@ -28,18 +28,18 @@ void printX(int startloc,int *currloc,int textloc,int mode,FILE *fop){
   }
 }
 
-void allocate(int startloc,int *currloc,int textloc,char text[],FILE *fop){
+void allocate(int rem,int *currloc,int textloc,char text[],FILE *fop){
   if(*currloc < textloc){
-    printX(startloc,currloc,textloc,3,fop);
-    *currloc = (textloc / 16) * 16;
-    printX(startloc,currloc,textloc,2,fop);
+    printX(rem,currloc,textloc,3,fop);
+    *currloc = (textloc / 16) * 16 + rem;
+    printX(rem,currloc,textloc,2,fop);
   }
 
   for(int i=0;i<strlen(text)-1;i+=2){
-    if((*currloc - startloc) % 16 == 0){
+    if(*currloc % 16 == rem){
       fprintf(fop,"\n%04X\t",*currloc);
     }
-    if((*currloc - startloc) % 4 == 0){
+    if((*currloc - rem) % 4 == 0){
       fprintf(fop,"  ");
     }
     fprintf(fop,"%c%c",text[i],text[i+1]);
@@ -55,10 +55,10 @@ void main(){
 
   fprintf(fop, "%-23s%-23s", "Address", "Content");
   char line[MAX],text[MAX],name1[MAX],name2[MAX];
-  int startloc,currloc,textloc,length1,length2;
+  int startloc,currloc,textloc,length1,length2,rem;
   fgets(line,sizeof(line),fin);
-  sscanf(line,"H^%6s ^%06X^%06X",name1,&startloc,&length1);
-  currloc = startloc;
+  sscanf(line,"H^%6s ^%06X^%06X",name1,&currloc,&length1);
+  rem = currloc % 16;
 
   fscanf(fname,"%s",name2);
   fscanf(flength,"%X",&length2);
@@ -70,10 +70,10 @@ void main(){
   fgets(line,sizeof(line),fin);
   while(line[0] != 'E'){
     decode(line,text,&textloc);
-    allocate(startloc,&currloc,textloc,text,fop);
+    allocate(rem,&currloc,textloc,text,fop);
     fgets(line,sizeof(line),fin);
   }
-  printX(startloc,&currloc,0,1,fop);
+  printX(rem,&currloc,0,1,fop);
 
   sscanf(line,"E^%06X",&startloc);
   fprintf(fop,"\n\nJumping to location %X",startloc);
