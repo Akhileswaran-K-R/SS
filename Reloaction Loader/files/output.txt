@@ -1,0 +1,16 @@
+Loading program COPY of length 1F into memory
+
+3000: 00
+3001: 30
+3002: 12
+3003: 0C
+3004: 30
+3005: 15
+3006: 45
+3007: 4F
+3008: 46
+3012: 00
+3013: 00
+3014: 05
+
+Jumping to location 3000
