@@ -16,11 +16,11 @@ void convert(int hex,int bin[]){
   }
 }
 
-void decode(char line[],char text[],int *textloc,int newloc){
+void decode(char line[],char text[],int *textloc,int offset){
   char obj[MAX],temp[MIN];
   int i=11,hex,bin[MIN];
   sscanf(line,"T^%06X^%*2s^%03X^%s",textloc,&hex,obj);
-  *textloc += newloc;
+  *textloc += offset;
   strcpy(text,"");
 
   convert(hex,bin);
@@ -30,7 +30,7 @@ void decode(char line[],char text[],int *textloc,int newloc){
       int code = (int)strtol(token,NULL,16);
       int opcode = code / 0x10000;
       int operand = code % 0x10000;
-      operand += newloc;
+      operand += offset;
       sprintf(temp,"%02X%04X",opcode,operand);
       strcat(text,temp);
     }else{
@@ -57,9 +57,9 @@ void main(){
 
   
   char line[MAX],text[MAX],name1[MAX],name2[MAX];
-  int startloc,textloc,length1,length2,newloc;
+  int startloc,textloc,length1,length2,newloc,offset;
   fgets(line,sizeof(line),fin);
-  sscanf(line,"H^%6s ^%*6s^%06X",name1,&length1);
+  sscanf(line,"H^%6s ^%06X^%06X",name1,&startloc,&length1);
 
   fscanf(fname,"%s",name2);
   fscanf(flength,"%X",&length2);
@@ -67,17 +67,18 @@ void main(){
     printf("Wrong program loaded\n");
     exit(0);
   }
-  printf("Enter the program address: ");
+  printf("Enter the new starting address: ");
   scanf("%X",&newloc);
+  offset = newloc - startloc;
 
   fprintf(fop,"Loading program %s of length %X into memory\n\n",name1,length1);
   fgets(line,sizeof(line),fin);
   while(line[0] != 'E'){
-    decode(line,text,&textloc,newloc);
+    decode(line,text,&textloc,offset);
     allocate(textloc,text,fop);
     fgets(line,sizeof(line),fin);
   }
 
   sscanf(line,"E^%06X",&startloc);
-  fprintf(fop,"\nJumping to location %X",startloc + newloc);
+  fprintf(fop,"\nJumping to location %X",startloc + offset);
 }
