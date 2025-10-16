@@ -34,13 +34,8 @@ int searchRef(ForwardRef *list[],char label[],int n){
 }
 
 void decode(char line[],char label[],char opcode[],char operand[]){
-  char *token = strtok(line," \n"),strings[3][MIN];
-  int count = 0;
-  while(token != NULL){
-    strcpy(strings[count],token);
-    count++;
-    token = strtok(NULL," \n");
-  }
+  char strings[3][MIN];
+  int count = sscanf(line,"%s %s %s",strings[0],strings[1],strings[2]);
 
   if(count == 1){
     strcpy(label,"");
@@ -121,6 +116,7 @@ void main(){
           text[strlen(text) - 1] = '\0';
           fprintf(fout,"\nT^%06X^%02X^%s",startobj,(int)((strlen(text) - count + 1) / 2),text);
           strcpy(text,"");
+          newText = 0;
           count = 0;
           startobj = locctr;
         }
@@ -186,7 +182,7 @@ void main(){
     }
 
     if(strcmp(objcode,"-1") != 0){
-      if(strlen(text) + strlen(objcode) - count > 60 || newText && strcmp(text,"") != 0){
+      if(strlen(text) + strlen(objcode) - count > 60 || newText){
         text[strlen(text) - 1] = '\0';
         fprintf(fout,"\nT^%06X^%02X^%s",startobj,(int)((strlen(text) - count + 1) / 2),text);
         strcpy(text,"");

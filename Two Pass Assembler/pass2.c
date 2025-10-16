@@ -5,13 +5,8 @@
 #define MIN 20
 
 void decode(char line[],char loc[],char opcode[],char operand[]){
-  char *token = strtok(line," \n\t"),strings[4][MIN];
-  int count = 0;
-  while(token != NULL){
-    strcpy(strings[count],token);
-    count++;
-    token = strtok(NULL," \n\t");
-  }
+  char strings[4][MIN];
+  int count = sscanf(line,"%s %s %s %s",strings[0],strings[1],strings[2],strings[3]);
 
   strcpy(loc,strings[0]);
   if(count == 2){
@@ -60,20 +55,19 @@ void main(){
   FILE *flisting = fopen("files/listing.txt","w");
   FILE *flength = fopen("files/length.txt","r");
 
-  char line1[MAX],line2[MAX],loc[MIN],opcode[MIN],operand[MIN],symbol[MIN],symaddr[MIN],mnemonic[MIN],hexacode[MIN],name[MIN],objcode[MIN + 2],length[MIN],start[MIN],startobj[MIN],text[MAX];
+  char line[MAX],loc[MIN],opcode[MIN],operand[MIN],symbol[MIN],symaddr[MIN],mnemonic[MIN],hexacode[MIN],name[MIN],objcode[MIN + 2],length[MIN],start[MIN],startobj[MIN],text[MAX];
 
-  fgets(line1,sizeof(line1),fin);
-  line1[strcspn(line1, "\n")] = '\0';
-  fprintf(flisting, "%s%-12s\n", line1, "Object Code");
+  fgets(line,sizeof(line),fin);
+  line[strcspn(line, "\n")] = '\0';
+  fprintf(flisting, "%s%-12s\n", line, "Object Code");
 
   fscanf(fin,"%s %s %s %s\n",start,name,opcode,operand);
   fprintf(flisting,"%-6s%-10s%-10s%-10s\n",start,name,opcode,operand);
   fscanf(flength,"%*s %*s %s",length);
   fprintf(fout,"H^%-6s^%06X^%06X\n",name,(int)strtol(start,NULL,16),(int)strtol(length,NULL,16));
 
-  fgets(line1,sizeof(line1),fin);
-  strcpy(line2,line1);
-  decode(line1,loc,opcode,operand);
+  fgets(line,sizeof(line),fin);
+  decode(line,loc,opcode,operand);
 
   int count = 0,found,newText = 0;
   strcpy(startobj,start);
@@ -112,8 +106,8 @@ void main(){
     }
 
     if(strcmp(objcode,"-1") != 0){
-      line2[strcspn(line2, "\n")] = '\0';
-      fprintf(flisting,"%s%-12s\n",line2,objcode);
+      line[strcspn(line, "\n")] = '\0';
+      fprintf(flisting,"%s%-12s\n",line,objcode);
 
       if(strlen(text) + strlen(objcode) - count > 60 || newText){
         text[strlen(text) - 1] = '\0';
@@ -132,14 +126,13 @@ void main(){
       count++;
       strcat(text,"^");
     }else{
-      fprintf(flisting,"%s",line2);
+      fprintf(flisting,"%s",line);
     }
-    fgets(line1,sizeof(line1),fin);
-    strcpy(line2,line1);
-    decode(line1,loc,opcode,operand);
+    fgets(line,sizeof(line),fin);
+    decode(line,loc,opcode,operand);
   }
   
-  fprintf(flisting,"%s",line2);
+  fprintf(flisting,"%s",line);
   if(count != 0){
     text[strlen(text) - 1] = '\0';
     fprintf(fout,"T^%06X^%02X^%s\n",(int)strtol(startobj,NULL,16),(int)((strlen(text) - count + 1) / 2),text);

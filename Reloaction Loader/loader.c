@@ -57,9 +57,9 @@ void main(){
 
   
   char line[MAX],text[MAX],name1[MAX],name2[MAX];
-  int startloc,textloc,length1,length2,newloc,offset;
+  int startloc,textloc,length1,length2,offset;
   fgets(line,sizeof(line),fin);
-  sscanf(line,"H^%6s ^%06X^%06X",name1,&startloc,&length1);
+  sscanf(line,"H^%6s ^%*6s^%06X",name1,&length1);
 
   fscanf(fname,"%s",name2);
   fscanf(flength,"%X",&length2);
@@ -67,9 +67,8 @@ void main(){
     printf("Wrong program loaded\n");
     exit(0);
   }
-  printf("Enter the new starting address: ");
-  scanf("%X",&newloc);
-  offset = newloc - startloc;
+  printf("Enter the new offset address: ");
+  scanf("%X",&offset);
 
   fprintf(fop,"Loading program %s of length %X into memory\n\n",name1,length1);
   fgets(line,sizeof(line),fin);

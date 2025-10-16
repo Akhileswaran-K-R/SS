@@ -5,13 +5,8 @@
 #define MIN 20
 
 void decode(char line[],char label[],char opcode[],char operand[]){
-  char *token = strtok(line," \n"),strings[3][MIN];
-  int count = 0;
-  while(token != NULL){
-    strcpy(strings[count],token);
-    count++;
-    token = strtok(NULL," \n");
-  }
+  char strings[3][MIN];
+  int count = sscanf(line,"%s %s %s",strings[0],strings[1],strings[2]);
 
   if(count == 1){
     strcpy(label,"");
