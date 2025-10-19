@@ -28,7 +28,7 @@ void allocate(int textloc,char text[],FILE *fop){
 void modify(char line[],int offset,int startloc,FILE *fop){
   int addr,size,loc;
   char obj[MAX] = "",hex[MAX],text[MAX];
-  sscanf(line,"M^%06X^%02d+%*s",&addr,&size);
+  sscanf(line,"M^%06X^%02X+%*s",&addr,&size);
   addr += offset + startloc - 1;
 
   rewind(fop);
