@@ -139,8 +139,11 @@ void main(){
   }
 
   if(strcmp(operand,"") != 0){
-    searchSymtab(fsymtab,operand,symaddr);
-    strcpy(start,symaddr);
+    if(searchSymtab(fsymtab,operand,symaddr)){
+      strcpy(start,symaddr);
+    }else{
+      strcpy(start,operand);
+    }
   }
   fprintf(fout,"E^%06X",(int)strtol(start,NULL,16));
 }

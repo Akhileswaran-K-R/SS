@@ -216,8 +216,11 @@ void main(){
   }
 
   if(strcmp(operand,"") != 0){
-    searchSymtab(fsymtab,operand,symaddr);
-    start = strtol(symaddr,NULL,16);
+    if(searchSymtab(fsymtab,operand,symaddr)){
+      start = strtol(symaddr,NULL,16);
+    }else{
+      start = strtol(operand,NULL,16);
+    }
   }
   fprintf(fout,"\nE^%06X",start);
   
