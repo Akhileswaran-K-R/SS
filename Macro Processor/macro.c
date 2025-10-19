@@ -57,7 +57,7 @@ void getLine(FILE *fp,int EXPANDING,char line[],char label[],char opcode[],char 
 }
 
 int search(FILE *fnamtab,char opcode[],long *start,long *end){
-  fseek(fnamtab,0,SEEK_SET);
+  rewind(fnamtab);
   char name[MIN];
 
   while(fscanf(fnamtab,"%s %ld %ld",name,start,end) != EOF){
