@@ -25,11 +25,11 @@ void allocate(int textloc,char text[],FILE *fop){
   }
 }
 
-void modify(char line[],int offset,int startloc,FILE *fop){
+void modify(char line[],int offset,FILE *fop){
   int addr,size,loc;
   char obj[MAX] = "",hex[MAX],text[MAX];
   sscanf(line,"M^%06X^%02X+%*s",&addr,&size);
-  addr += offset + startloc - 1;
+  addr += offset - 1;
 
   rewind(fop);
   fgets(line,MAX,fop);
@@ -61,11 +61,10 @@ void main(){
   FILE *flength = fopen("files/length.txt","r");
   FILE *fop = fopen("files/output.txt","w+");
 
-  
   char line[MAX],text[MAX],name1[MAX],name2[MAX];
   int startloc,textloc,length1,length2,offset;
   fgets(line,sizeof(line),fin);
-  sscanf(line,"H^%6s ^%06X^%06X",name1,&startloc,&length1);
+  sscanf(line,"H^%6s ^%*6s^%06X",name1,&length1);
 
   fscanf(fname,"%s",name2);
   fscanf(flength,"%X",&length2);
@@ -84,7 +83,7 @@ void main(){
       decode(line,text,&textloc,offset);
       allocate(textloc,text,fop);
     }else if(line[0] == 'M'){
-      modify(line,offset,startloc,fop);
+      modify(line,offset,fop);
     }
     fgets(line,sizeof(line),fin);
   }
