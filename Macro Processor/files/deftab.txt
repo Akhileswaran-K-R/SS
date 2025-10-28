@@ -1,25 +1,25 @@
-RDBUFF   &INDEV,&BUFADR,&RECLTH
-CLEAR    X        
-CLEAR    A        
-CLEAR    S        
-+LDT     #4096    
-TD       =X'?1'   
-JEQ      *-3      
-RD       =X'?1'   
-COMPR    A,S      
-JEQ      *+11     
-STCH     ?2,X     
-TIXR     T        
-JLT      *-19     
-STX      ?3       
-MEND              
-WRBUFF   &OUTDEV,&BUFADR,&RECLTH
-CLEAR    X        
-LDT      ?3       
-LDCH     ?2,X     
-TD       =X'?1'   
-JEQ      *-3      
-WD       =X'?1'   
-TIXR     T        
-JLT      *-14     
-MEND              
+RDBUFF   MACRO    &INDEV,&BUFADR,&RECLTH
+         CLEAR    X        
+         CLEAR    A        
+         CLEAR    S        
+         +LDT     #4096    
+         TD       =X'?1'   
+         JEQ      *-3      
+         RD       =X'?1'   
+         COMPR    A,S      
+         JEQ      *+11     
+         STCH     ?2,X     
+         TIXR     T        
+         JLT      *-19     
+         STX      ?3       
+         MEND              
+WRBUFF   MACRO    &OUTDEV,&BUFADR,&RECLTH
+         CLEAR    X        
+         LDT      ?3       
+         LDCH     ?2,X     
+         TD       =X'?1'   
+         JEQ      *-3      
+         WD       =X'?1'   
+         TIXR     T        
+         JLT      *-14     
+         MEND              

@@ -72,7 +72,7 @@ void define(FILE *fin,FILE *fdeftab,FILE *fnamtab,int EXPANDING,char line[],char
   fseek(fnamtab,0,SEEK_END);
   fseek(fdeftab,0,SEEK_END);
   fprintf(fnamtab,"%s %ld ",label,ftell(fdeftab));
-  fprintf(fdeftab,"%-9s%-9s\n",label,operand);
+  fprintf(fdeftab,"%-9s%-9s%-9s\n",label,opcode,operand);
   int LEVEL = 1,i = 0;
   char strings[MIN][MIN];
 
@@ -108,7 +108,7 @@ void define(FILE *fin,FILE *fdeftab,FILE *fnamtab,int EXPANDING,char line[],char
       strcpy(operand,newop);
     }
 
-    fprintf(fdeftab,"%-9s%-9s\n",opcode,operand);
+    fprintf(fdeftab,"%-9s%-9s%-9s\n",label,opcode,operand);
     if(strcmp(opcode,"MACRO") == 0){
       LEVEL++;
     }else if(strcmp(opcode,"MEND") == 0){
